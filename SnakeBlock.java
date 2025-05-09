@@ -4,7 +4,7 @@ public class SnakeBlock {
 	private int xaxis;
 	private int yaxis;
 	
-	public static final int blcok_height = 20;
+	public static final int block_height = 20;
 	public static final int block_width = 20;
 	
 	public SnakeBlock( int xaxis, int yaxis) {// get pos of snake block
@@ -30,5 +30,7 @@ public class SnakeBlock {
 		return this.yaxis;
 	}
 
-	
+    public void setPosx(int increment) { this.xaxis = this.xaxis + increment; }
+
+    public void setPosy(int increment) { this.yaxis =  this.yaxis + increment; }
 }
