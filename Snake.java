@@ -170,3 +170,19 @@ public class Snake extends JPanel {
             current = current.next;
         }
     }
+
+    public void setApple(Apple apple) {
+        this.apple = apple;
+    }
+
+    public Apple getApple() {
+        return this.apple;
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        setBackground(c);
+        drawSnake(g);
+    }
+}
