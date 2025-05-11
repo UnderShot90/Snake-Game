@@ -75,16 +75,6 @@ public class Snake extends JPanel {
         size--;
     }
 
-    private SnakeBlock get(int index) {
-        Node current = head;
-        int i = 0;
-        while (current != null && i < index) {
-            current = current.next;
-            i++;
-        }
-        return current != null ? current.data : null;
-    }
-
     public void setDirection(String direction) {
         this.direction = direction;
     }
@@ -112,13 +102,13 @@ public class Snake extends JPanel {
         int x = headBlock.getXaxis();
         int y = headBlock.getYaxis();
         if (x < 0 || x + block_width > this.getWidth() || y < 0 || y + block_height > this.getHeight()) {
-            gameOver("You hit the wall!");
+            gameOver();
         }
 
         Node current = head.next;
         while (current != null) {
             if (headBlock.collision(current.data)) {
-                gameOver("You collided with yourself!");
+                gameOver();
             }
             current = current.next;
         }
@@ -129,7 +119,7 @@ public class Snake extends JPanel {
         }
     }
 
-    private void gameOver(String message) {
+    private void gameOver() {
         isGameOver = true;
         scoresDisplayed = false;
         repaint();
