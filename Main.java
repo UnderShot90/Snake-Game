@@ -63,6 +63,9 @@ public class Main extends JFrame implements KeyListener, ActionListener {
         else if (c == 40 && !this.snake.getDirection().equals("up")) {
             this.snake.setDirection("down"); // down arrow pressed
         }
+        else if (c == KeyEvent.VK_ENTER && this.snake.isGameOver()) {
+            this.snake.resetGame();
+}
     }
 
     @Override

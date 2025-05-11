@@ -1,11 +1,9 @@
 package SnakeGame;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.WindowEvent;
-
 import static SnakeGame.SnakeBlock.block_height;
 import static SnakeGame.SnakeBlock.block_width;
+import java.awt.*;
+import javax.swing.*;
 
 public class Snake extends JPanel {
 
@@ -20,6 +18,9 @@ public class Snake extends JPanel {
     private String direction;
     private Apple apple;
     private Main window;
+    private boolean isGameOver = false;
+    private SinglyLinkedList<Integer> board = new SinglyLinkedList<>();
+    private boolean scoresDisplayed = false;
 
     // Node class (linked list)
     private static class Node {
@@ -129,11 +130,9 @@ public class Snake extends JPanel {
     }
 
     private void gameOver(String message) {
-        System.out.println(message);
-        this.window.setVisible(false);
-        JOptionPane.showMessageDialog(new JFrame("Game Over"), message + "\nYour score: " + size);
-        this.window.dispatchEvent(new WindowEvent(this.window, WindowEvent.WINDOW_CLOSING));
-        System.exit(0);
+        isGameOver = true;
+        scoresDisplayed = false;
+        repaint();
     }
 
     public void moveSnake() {
@@ -153,15 +152,37 @@ public class Snake extends JPanel {
         checkCollision();
     }
 
-    private void drawSnake(Graphics g) {
-        moveSnake();
-        Graphics2D g2d = (Graphics2D) g;
+    public void resetGame() {
+        this.head = null;
+        this.tail = null;
+        this.size = 0;
+        this.direction = "right";
+        this.apple = null;
+        this.isGameOver = false;
 
+        addFirst(new SnakeBlock(250, 250));
+        addLast(new SnakeBlock(250 - block_width, 250));
+        addLast(new SnakeBlock(250 - 2 * block_width, 250));
+        repaint();
+    }
+
+    public boolean isGameOver() {
+        return isGameOver;
+    }
+
+    private void drawSnake(Graphics g) {
+    Graphics2D g2d = (Graphics2D) g;
+
+    if (!isGameOver) {
+        moveSnake();
+
+        // Draw apple
         if (apple != null) {
             g2d.setPaint(Color.red);
             g2d.fillRect(apple.getXaxis(), apple.getYaxis(), block_width, block_height);
         }
 
+        // Draw snake
         g2d.setPaint(Color.blue);
         Node current = head;
         while (current != null) {
@@ -169,6 +190,63 @@ public class Snake extends JPanel {
             g2d.fillRect(block.getXaxis(), block.getYaxis(), block_width, block_height);
             current = current.next;
         }
+    } else {
+        // Game over text
+        g2d.setPaint(Color.BLACK);
+        g2d.setFont(new Font("Arial", Font.BOLD, 48));
+        g2d.drawString("Game Over", 225, 300);
+
+        g2d.setFont(new Font("Arial", Font.PLAIN, 24));
+        g2d.drawString("Press Enter to Play Again", 200, 350);
+
+        if (!scoresDisplayed) {
+        SinglyLinkedList<Integer> temp = new SinglyLinkedList<>();
+        boolean added = false;
+
+        // Insert new score in descending order
+        while (!board.isEmpty()) {
+            int currentScore = board.removeFirst();
+
+            if (!added && size >= currentScore) {
+                temp.addLast(size);  // Add new score before smaller score
+                added = true;
+            }
+
+            temp.addLast(currentScore);
+        }
+
+        // If score is lowest and not yet added, add it at the end
+        if (!added) {
+            temp.addLast(size);
+        }
+
+        // Limit to top 3 scores only
+        int count = 0;
+        while (!temp.isEmpty() && count < 3) {
+            board.addLast(temp.removeFirst());
+            count++;
+        }
+
+        scoresDisplayed = true;
+    }
+
+    // Display the top scores
+    g2d.setFont(new Font("Arial", Font.PLAIN, 24));
+    g2d.drawString("Top Scores:", 200, 400);
+
+    int y = 430;
+    int rank = 1;
+
+    // Display only the scores already stored (max 3)
+    int scoreCount = board.size();
+    for (int i = 0; i < scoreCount; i++) {
+        int score = board.removeFirst();
+        g2d.drawString(rank + ". " + score, 200, y);
+        board.addLast(score);  // Maintain order
+        y += 30;
+        rank++;
+    }
+    }
     }
 
     public void setApple(Apple apple) {
